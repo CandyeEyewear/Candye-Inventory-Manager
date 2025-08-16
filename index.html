@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Supplier OOS Cleaner — Reference-First Flow (robust XLSX/CSV)</title>
+  <title>Candye Supplier OOS Cleaner — Reference-First Flow (robust XLSX/CSV)</title>
   <style>
     :root{ --bg:#0f172a; --card:#111827; --muted:#94a3b8; --fg:#e5e7eb; --accent:#22d3ee; --ok:#34d399; --warn:#f59e0b; --err:#ef4444; --radius:14px }
     *{box-sizing:border-box}
@@ -384,11 +384,12 @@ function wireDrop(el, onFile){ el.addEventListener('dragover', e=>{e.preventDefa
   wireDrop($('sup-drop'), handleSupFile);
 
   $('build-inventory').addEventListener('click', buildInventory);
-  $('download-inventory').addEventListener('click', downloadInventory);
-  $('download-unmatched').addEventListener('click', downloadUnmatched);
+  const wrapUserClick = fn => (e)=>{ __USER_CLICK__ = true; try { fn(e); } finally { setTimeout(()=>{ __USER_CLICK__ = false; }, 0); } };
+  $('download-inventory').addEventListener('click', wrapUserClick(downloadInventory));
+  $('download-unmatched').addEventListener('click', wrapUserClick(downloadUnmatched));
 
   $('build-tags').addEventListener('click', buildTags);
-  $('download-tags').addEventListener('click', downloadTags);
+  $('download-tags').addEventListener('click', wrapUserClick(downloadTags));
   $('apply-global-tags').addEventListener('click', applyGlobalTags);
 
   setBadge('Load product export first');
@@ -396,5 +397,3 @@ function wireDrop(el, onFile){ el.addEventListener('dragover', e=>{e.preventDefa
 </script>
 </body>
 </html>
-
-        
