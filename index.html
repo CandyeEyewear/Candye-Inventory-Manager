@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Supplier OOS Cleaner — Reference-First Flow (robust XLSX/CSV)</title>
+  <title>Candye Supplier OOS Cleaner — Reference-First Flow (robust XLSX/CSV)</title>
   <style>
     :root{ --bg:#0f172a; --card:#111827; --muted:#94a3b8; --fg:#e5e7eb; --accent:#22d3ee; --ok:#34d399; --warn:#f59e0b; --err:#ef4444; --radius:14px }
     *{box-sizing:border-box}
@@ -359,12 +359,17 @@ function applyGlobalTags(){
 
 function downloadTags(){
   const append = $('appendExisting').checked; const out=[];
-  for(const r of tagsPreview){ const add = (r.addTags||'').split(',').map(s=>s.trim()).filter(Boolean); let tags = []; if(append){ tags = (r.existingTags||'').split(',').map(s=>s.trim()).filter(Boolean); for(const t of add){ if(!tags.includes(t)) tags.push(t); } } else { tags = add; } out.push({'Handle': r.handle, 'Tags': tags.join(', ')}); }
-  downloadCSV('product_tags_update.csv', ['Handle','Tags'], out);
-}
-{
-  const append = $('appendExisting').checked; const out=[];
-  for(const r of tagsPreview){ const add = (r.addTags||'').split(',').map(s=>s.trim()).filter(Boolean); let tags = []; if(append){ tags = (r.existingTags||'').split(',').map(s=>s.trim()).filter(Boolean); for(const t of add){ if(!tags.includes(t)) tags.push(t); } } else { tags = add; } out.push({'Handle': r.handle, 'Tags': tags.join(', ')}); }
+  for(const r of tagsPreview){
+    const add = (r.addTags||'').split(',').map(s=>s.trim()).filter(Boolean);
+    let tags = [];
+    if(append){
+      tags = (r.existingTags||'').split(',').map(s=>s.trim()).filter(Boolean);
+      for(const t of add){ if(!tags.includes(t)) tags.push(t); }
+    } else {
+      tags = add;
+    }
+    out.push({'Handle': r.handle, 'Tags': tags.join(', ')});
+  }
   downloadCSV('product_tags_update.csv', ['Handle','Tags'], out);
 }
 
