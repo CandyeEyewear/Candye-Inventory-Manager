@@ -5,38 +5,126 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Candye Supplier OOS Cleaner — Reference-First Flow (robust XLSX/CSV)</title>
   <style>
-    :root{ --bg:#0f172a; --card:#111827; --muted:#94a3b8; --fg:#e5e7eb; --accent:#22d3ee; --ok:#34d399; --warn:#f59e0b; --err:#ef4444; --radius:14px }
+    :root{
+      /* Light theme */
+      --bg:#ffffff;            /* page background */
+      --card:#fdfdfd;          /* card background */
+      --fg:#1f2937;            /* text */
+      --muted:#6b7280;         /* muted text */
+      --border:#e5e7eb;        /* borders */
+      --shadow:0 2px 8px rgba(0,0,0,.06);
+
+      /* Brand accents */
+      --peach:#FFDAB9;         /* button base */
+      --peach-hover:#FBC9A7;   /* button hover */
+      --green:#34d399;         /* selected/active */
+      --amber:#fbbf24;         /* dropzone border */
+      --ok:#34d399;
+      --warn:#f59e0b;
+      --err:#ef4444;
+
+      --radius:14px;
+    }
+
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+    body{
+      margin:0;background:var(--bg);color:var(--fg);
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial
+    }
+
     .wrap{max-width:1200px;margin:40px auto;padding:0 16px}
-    h1{font-size:clamp(20px,2.4vw,28px);margin:0 0 10px}
-    .card{background:var(--card);border:1px solid #1f2937;border-radius:var(--radius);padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+    h1{font-size:clamp(20px,2.4vw,28px);margin:0 0 10px;color:#111827}
+    strong{color:#111827}
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .grid{display:grid;gap:14px}
     .cols-2{grid-template-columns:1fr 1fr}
-    .btn{appearance:none;border:1px solid #334155;background:#0b1220;color:var(--fg);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
-    .btn:hover{border-color:#3b82f6}
-    .btn.primary{background:#0ea5e9;border-color:#0284c7}
-    .btn.success{background:#10b981;border-color:#059669}
-    .drop{border:2px dashed #334155;border-radius:12px;padding:16px;text-align:center}
-    .drop.drag{border-color:var(--accent);background:#0b1220}
+
+    /* Inputs */
     input[type="number"],input[type="text"],input[type="checkbox"],select{font:inherit}
-    input[type="number"],input[type="text"],select{width:100%;padding:10px;border:1px solid #374151;background:#0b1220;color:var(--fg);border-radius:10px}
-    label{color:var(--muted)}
+    input[type="number"],input[type="text"],select{
+      width:100%;padding:10px;border:1px solid var(--border);
+      background:#fff;color:var(--fg);border-radius:10px;
+      transition:border .2s, box-shadow .2s;
+    }
+    input:focus,select:focus{
+      border-color:var(--green);
+      box-shadow:0 0 0 2px rgba(52,211,153,.2);
+      outline:none;
+    }
+    label{color:var(--fg);font-weight:500}
+
+    /* Buttons: peach -> green when active/selected */
+    .btn{
+      appearance:none;border:1px solid var(--border);
+      background:var(--peach);color:var(--fg);
+      padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600;
+      transition:background .2s, border-color .2s, color .2s, transform .05s;
+    }
+    .btn:hover{ background:var(--peach-hover); }
+    .btn:active,.btn.selected{ background:var(--green); color:#fff; border-color:var(--green); }
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+
+    /* Legacy variants still look good in the new scheme */
+    .btn.primary{ /* keep same look as base peach; :active turns green */
+      background:var(--peach);
+    }
+    .btn.success{ background:var(--green); color:#fff; border-color:var(--green); }
+
+    /* Dropzones: visible on white */
+    .drop{
+      border:2px dashed var(--amber);
+      border-radius:12px;padding:16px;text-align:center;
+      background:#fffaf5;color:var(--muted);
+      transition:background .2s, border-color .2s;
+    }
+    .drop.drag{ border-color:var(--green); background:#fff3eb; }
+
+    /* Key-value layout */
     .kv{display:grid;grid-template-columns:220px 1fr;gap:10px;align-items:center}
-    .table-wrap{max-height:420px;overflow:auto;border:1px solid #1f2937;border-radius:12px}
+
+    /* Tables */
+    .table-wrap{
+      max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:12px;background:#fff;
+    }
     table{border-collapse:collapse;width:100%;font-size:14px}
-    th,td{padding:8px 10px;border-bottom:1px solid #1f2937;text-align:left}
-    tr:hover td{background:#0b1220}
+    th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left}
+    th{position:sticky;top:0;background:#f9fafb;color:#111827}
+    tbody tr:nth-child(even){background:#f9fafb}
+    tr:hover td{background:#f3f4f6}
+
     .muted{color:var(--muted)}
-    .badge{display:inline-block;background:#0b1220;border:1px solid #334155;padding:4px 8px;border-radius:999px;font-size:12px}
-    .sep{height:1px;background:#1f2937;margin:12px 0}
-    .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #334155;background:#0b1220;font-size:12px}
+    .badge{display:inline-block;background:#fff;border:1px solid var(--border);padding:4px 8px;border-radius:999px;font-size:12px}
+    .sep{height:1px;background:var(--border);margin:12px 0}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:12px;color:var(--fg)}
+
     .ok{color:var(--ok)} .err{color:var(--err)} .warn{color:var(--warn)}
     .hint{font-size:12px;color:var(--muted)}
-    .sticky-actions{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(17,24,39,0), #111827 30%);padding-top:8px}
-    .tags-input{width:100%;padding:6px 8px;border:1px solid #374151;background:#0b1220;color:var(--fg);border-radius:8px}
-    .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;border:1px solid #334155;padding:10px 14px;border-radius:10px;max-width:360px}
+
+    .sticky-actions{
+      position:sticky;bottom:0;
+      background:linear-gradient(180deg, rgba(253,253,253,0), #fdfdfd 40%);
+      padding-top:8px
+    }
+
+    .tags-input{
+      width:100%;padding:6px 8px;border:1px solid var(--border);background:#fff;color:var(--fg);border-radius:8px
+    }
+
+    /* Toast fits light UI but keeps strong border colors by type */
+    .toast{
+      position:fixed;right:16px;bottom:16px;background:#fff;border:1px solid var(--border);
+      padding:10px 14px;border-radius:10px;max-width:360px;box-shadow:var(--shadow);color:var(--fg)
+    }
+
     .progress{display:flex;align-items:center;gap:10px}
     .progress progress{width:240px;height:16px}
   </style>
@@ -93,14 +181,14 @@
         <strong>Inventory Preview</strong>
         <div class="table-wrap">
           <table id="inv-table"><thead><tr>
-            <th>Handle<\/th>
-            <th>Title<\/th>
-            <th>Option1 Name<\/th><th>Option1 Value<\/th>
-            <th>Option2 Name<\/th><th>Option2 Value<\/th>
-            <th>Option3 Name<\/th><th>Option3 Value<\/th>
-            <th>SKU<\/th>
-            <th>WOHU<\/th>
-          <\/tr><\/thead><tbody></tbody></table>
+            <th>Handle</th>
+            <th>Title</th>
+            <th>Option1 Name</th><th>Option1 Value</th>
+            <th>Option2 Name</th><th>Option2 Value</th>
+            <th>Option3 Name</th><th>Option3 Value</th>
+            <th>SKU</th>
+            <th>WOHU</th>
+          </tr></thead><tbody></tbody></table>
         </div>
         <div class="sticky-actions row">
           <button id="download-inventory" class="btn" disabled>Download Inventory CSV</button>
@@ -156,7 +244,13 @@
 
 <script>
 // ===== Toast =====
-function toast(msg, type='warn'){ const el=document.getElementById('toast'); el.textContent=msg; el.style.display='block'; el.style.borderColor= type==='err' ? '#ef4444' : (type==='ok' ? '#059669' : '#b45309'); setTimeout(()=>{ el.style.display='none'; }, 4500); }
+function toast(msg, type='warn'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.style.display='block';
+  el.style.borderColor= type==='err' ? '#ef4444' : (type==='ok' ? '#34d399' : '#f59e0b');
+  setTimeout(()=>{ el.style.display='none'; }, 4500);
+}
 
 // ===== XLSX Loader (on demand) =====
 const XLSX_CDNS = [
